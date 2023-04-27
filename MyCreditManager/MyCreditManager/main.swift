@@ -25,26 +25,22 @@ loop: while true {
     switch command {
     case "1":
         addStudent()
-        continue
     case "2":
         deleteStudent()
-        continue
     case "3":
         addOrChangeScore()
-        continue
     case "4":
         deleteScore()
-        continue
     case "5":
         printScore()
-        continue
     case "X":
         print("프로그램을 종료합니다...")
         break loop
     default:
         print("뭔가 입력이 잘못되었습니다. 1~5 사이의 숫자 혹은 X를 입력해주세요.")
-        continue
     }
+    
+    continue
 }
 
 // MARK: - 학생 추가
@@ -98,35 +94,38 @@ func deleteStudent() {
     }
 }
 
-// MARK: - 성적 추가
+// MARK: - 성적 추가(변경)
 func addOrChangeScore() {
     print("성적을 추가할 학생의 이름, 과목 이름, 성적(A+, A, F 등)을 띄어쓰기로 구분하여 차례로 작성해주세요.")
     print("입력예) Mickey Swift A+")
     print("만약에 학생의 성적 중 해당 과목이 존재하면 기존 점수가 갱신됩니다.")
     
     let inputt = readLine()!.split(separator: " ").map{ $0 }
-    if inputt.count != 3 {
+    
+    guard inputt.count == 3 else {
         print("입력이 잘못 되었습니다. 다시 확인해주세요.")
-    } else {
-        let name = String(inputt[0])
-        let subject = String(inputt[1])
-        let grade = String(inputt[2])
-        
-        guard checkCorrectName(input: name) && checkCorrectGrade(input: grade) else {
-            print("입력이 잘못 되었습니다. 다시 확인해주세요.")
-            return
-        }
-
-        for i in 0..<students.count {
-            if students[i].name == name {
-                if students[i].subjects[subject] != nil { // 기존 성적이 있을 경우
-                    students[i].score -= changeGradeToScore(students[i].subjects[subject] ?? "") // 기존점수 제거
-                }
-                students[i].score += changeGradeToScore(grade)
-                students[i].subjects[subject] = grade
-                print("\(name) 학생의 \(subject) 과목이 \(grade)로 추가(변경)되었습니다.")
-                break
+        return
+    }
+    
+    let name = String(inputt[0])
+    let subject = String(inputt[1])
+    let grade = String(inputt[2])
+    
+    guard checkCorrectName(input: name) && checkCorrectGrade(input: grade) else {
+        print("입력이 잘못 되었습니다. 다시 확인해주세요.")
+        return
+    }
+    
+    for i in 0..<students.count {
+        if students[i].name == name {
+            if students[i].subjects[subject] != nil { // 기존 성적이 있을 경우
+                students[i].score -= changeGradeToScore(students[i].subjects[subject] ?? "") // 기존점수 제거
             }
+            
+            students[i].score += changeGradeToScore(grade)
+            students[i].subjects[subject] = grade
+            print("\(name) 학생의 \(subject) 과목이 \(grade)로 추가(변경)되었습니다.")
+            break
         }
     }
 }
@@ -137,29 +136,31 @@ func deleteScore() {
     print("입력예) Mickey Swift")
     
     let inputt = readLine()!.split(separator: " ").map{ $0 }
-    if inputt.count != 2 {
+    
+    guard inputt.count == 2 else {
         print("입력이 잘못 되었습니다. 다시 확인해주세요.")
-    } else {
-        let name = String(inputt[0])
-        let subject = String(inputt[1])
-        
-        guard checkCorrectName(input: name) else {
-            print("\(name) 학생을 찾지 못했습니다.")
-            return
-        }
-        
-        guard checkCorrectName(input: name) && checkCorrentSubject(input: subject) else {
-            print("입력이 잘못 되었습니다. 다시 확인해주세요.")
-            return
-        }
-
-        for i in 0..<students.count {
-            if students[i].name == name {
-                students[i].score -= changeGradeToScore(students[i].subjects[subject] ?? "")
-                students[i].subjects[subject] = nil
-                print("\(name) 학생의 \(subject) 과목의 성적이 삭제되었습니다.")
-                break
-            }
+        return
+    }
+    
+    let name = String(inputt[0])
+    let subject = String(inputt[1])
+    
+    guard checkCorrectName(input: name) else {
+        print("\(name) 학생을 찾지 못했습니다.")
+        return
+    }
+    
+    guard checkCorrectName(input: name) && checkCorrectSubject(input: subject) else {
+        print("입력이 잘못 되었습니다. 다시 확인해주세요.")
+        return
+    }
+    
+    for i in 0..<students.count {
+        if students[i].name == name {
+            students[i].score -= changeGradeToScore(students[i].subjects[subject] ?? "")
+            students[i].subjects[subject] = nil
+            print("\(name) 학생의 \(subject) 과목의 성적이 삭제되었습니다.")
+            break
         }
     }
 }
@@ -248,12 +249,12 @@ func checkCorrectGrade(input: String) -> Bool {
     return false
 }
 
-func checkCorrentSubject(input: String) -> Bool {
+func checkCorrectSubject(input: String) -> Bool {
     for student in students {
         if student.subjects[input] != nil {
             return true
         }
     }
-    
+
     return false
 }
